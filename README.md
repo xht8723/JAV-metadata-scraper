@@ -11,4 +11,6 @@ BeautifulSoup4
 
 ## Usage:
 
-put the .py file into the folder where your jav resides, then run the py there.  
+You have to manually visit the jav guru site first to get the cookie value and user agent.  
+simply fill your cookie value and user agent in "headers" variable.  
+Put the .py file into the folder where your jav resides, then run the py there.  
