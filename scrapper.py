@@ -12,8 +12,8 @@ file_path = os.path.join(script_dir, 'output.html')
 
 javguru_search_url = "https://jav.guru/?s="
 headers = {
-    'User-Agent': 'your user agent',
-    'Cookie': '_ga=value; PHPSESSID=value; _ga_83WTHH81CR=value'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'Cookie': '_ga=GA1.1.1355043263.1685224096; PHPSESSID=h0bn1a946dmk5p1il5ff8cjcbd; _ga_83WTHH81CR=GS1.1.1712917919.142.0.1712917929.0.0.0'
 }
 file_format = [
     '.mp4',
@@ -28,7 +28,7 @@ file_format = [
 def manageStructure(directory='.'):
     # Get the list of files in the specified directory
     file_list = os.listdir(directory)
-    pattern = re.compile('([a-zA-Z]+-\d+)')
+    pattern = re.compile('([a-zA-Z]+\d*?-\d+[a-zA-Z]?)')
     processed_files = []
     current_directory = os.getcwd()
     #looping
@@ -70,10 +70,6 @@ def manageStructure(directory='.'):
             nfo_name = filename + ".nfo"
             createNFO(nfo_name, data, folder_path + '\\' + image)
             shutil.move(nfo_name, folder_path)
-
-    #create logs
-    with open("logs.txt", 'w') as f:
-        f.write("preocessed files: /n")
     
 
 #using data to create the nfo file.
@@ -116,22 +112,41 @@ def findData_javguru(banngo):
     try:
         search = requests.get(javguru_search_url + banngo, headers = headers)
         result = regex.search(search.text)
+        result = result.group() + ''
     except:
-        print("did not found search result for ", banngo)
-        print('ending script')
-        sys.exit(1)
+        print(banngo + "first search failed. trying again...")
+        try:
+            secondTry = re.compile(r'<a title="\[.*?\] .*"')
+            search = requests.get(javguru_search_url + banngo, headers = headers)
+            result = secondTry.search(search.text).group()
+        except:
+            print("did not found search result for ", banngo)
+            print('ending script')
+            sys.exit(1)
 
     #extract title and url from previous match
     regex = re.compile(r'<a title="(?P<title>.*?)" href="(?P<href>.*?)"')
     try:
-        match = regex.search(result.group())
+        match = regex.search(result)
         title = match.group('title')
-        invalidBracket = r'[.*]'
+        invalidBracket = '\[.*\]'
         title = re.sub(invalidBracket, '', title)
         target_url = match.group('href')
     except:
-        print("didnt find title information for ", banngo)
-        sys.exit(1)
+        print(banngo + " title search failed. loosing condition try again....")
+        try:
+            secondTry = re.compile(r'<a title="(.*?)"')
+            print(result)
+            match = secondTry.findall(result)
+            title = match[0]
+            invalidBracket = '\[.*\]'
+            title = re.sub(invalidBracket, '', title)
+            secondTry = re.compile(r'href="(.*?)"')
+            target_url = match[0]
+        except Exception as e:
+            print(str(e))
+            print("didnt find title information for ", banngo)
+            sys.exit(1)
 
     #open target url to extract metadata
     search = requests.get(target_url, headers = headers)
@@ -211,6 +226,6 @@ def downloadImage(data):
     except:
         print("failed to save image")
     return 'folder.jpg'
-    
+
 
 manageStructure()
