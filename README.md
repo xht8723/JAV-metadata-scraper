@@ -1,6 +1,6 @@
 # guruScrapper
 
-A little python script to scrap the JAV metadatas for jellyfin.  
+A little python script to scrap the JAV metadatas and thumbnails for jellyfin.  
 Currently only using JAV GURU site.
 
 ## Dependencies:
