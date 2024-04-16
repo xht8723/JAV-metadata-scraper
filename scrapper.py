@@ -8,12 +8,11 @@ from datetime import date, datetime
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, 'output.html')
 
 javguru_search_url = "https://jav.guru/?s="
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-    'Cookie': '_ga=GA1.1.1355043263.1685224096; PHPSESSID=h0bn1a946dmk5p1il5ff8cjcbd; _ga_83WTHH81CR=GS1.1.1712917919.142.0.1712917929.0.0.0'
+    'User-Agent': 'your user agent',
+    'Cookie': '_ga=value; PHPSESSID=value; _ga_83WTHH81CR=value'
 }
 file_format = [
     '.mp4',
@@ -88,16 +87,16 @@ def createNFO(nfo_name, data, image):
         for eachtag in data['tags']:
             f.write('\t<genre>' + eachtag + '</genre>\n')
         f.write('\t<studio>' + data['label'] + '</studio>\n')
-        f.write('\t<tag>' + data['actress'] + '</tag>\n')
         f.write('\t<art>\n')
         f.write('\t\t<poster>' + image + '</poster>\n')
         f.write('\t\t<fanart>' + image + '</fanart>\n')
         f.write('\t</art>\n')
-        f.write('\t<actor>\n')
-        f.write('\t\t<name>' + data['actress'] + '</name>\n')
-        f.write('\t\t<role>Actress</role>\n')
-        f.write('\t\t<type>Actor</type>\n')
-        f.write('\t</actor>\n')
+        for eachAct in data['actress']:
+            f.write('\t<actor>\n')
+            f.write('\t\t<name>' + eachAct + '</name>\n')
+            f.write('\t\t<role>Actress</role>\n')
+            f.write('\t\t<type>Actor</type>\n')
+            f.write('\t</actor>\n')
         f.write('\t<set>' + data["studio"] + '</set>\n')
         f.write('\t<thumb>' + data['image'] + '</thumb>\n')
         f.write('</movie>')
@@ -187,18 +186,23 @@ def findData_javguru(banngo):
         print("no tag information for ", banngo)
         tags = ''
     try:
-        actress = re.search(r'Actress: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
-    except:
+        soupActress = BeautifulSoup(targetinfo, 'html.parser')
+        actress = []
+        actress_list = soupActress.findAll('li', class_='w1')
+        actressRegex = re.compile(r'([a-zA-Z]+ [a-zA-Z]+)<\/a>')
+        actress = actressRegex.findall(str(actress_list[3]))
+        #actress = re.search(r'Actress: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
+    except Exception as e:
         print("no actress information for " + banngo + " set actress to unknown")
+        print(str(e))
         actress = 'unknown'
-
 
     #find image adress
     try:
         imageAdress = soup.find('div', class_ = 'large-screenimg')
         imageAdress = str(imageAdress)
-        soup = BeautifulSoup(imageAdress, 'html.parser')
-        imageAdress = soup.find('img')['src']
+        soupImage = BeautifulSoup(imageAdress, 'html.parser')
+        imageAdress = soupImage.find('img')['src']
     except:
         print("did not find image adress")
         imageAdress = ''
