@@ -12,8 +12,8 @@ file_path = os.path.join(script_dir, 'output.html')
 
 javguru_search_url = "https://jav.guru/?s="
 headers = {
-    'User-Agent': 'your user agent',
-    'Cookie': '_ga=value; PHPSESSID=value; _ga_83WTHH81CR=value'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'Cookie': '_ga=GA1.1.1355043263.1685224096; PHPSESSID=h0bn1a946dmk5p1il5ff8cjcbd; _ga_83WTHH81CR=GS1.1.1712917919.142.0.1712917929.0.0.0'
 }
 file_format = [
     '.mp4',
@@ -30,6 +30,7 @@ def manageStructure(directory='.'):
     file_list = os.listdir(directory)
     pattern = re.compile('([a-zA-Z]+-\d+)')
     processed_files = []
+    current_directory = os.getcwd()
     #looping
     for file in file_list:
         #optimize file name and prepare for more process
@@ -42,12 +43,18 @@ def manageStructure(directory='.'):
             else:
                 print("error in looping banngo")
                 sys.exit(1)
-
             data = findData_javguru(banngo)
+
+            #clean the name to avoid invlaid title name for folder
+            folder_name = banngo + ' [' + data['studio'] + '] -' + data['title'] + ' (' + data['release date'].split('-')[0] + ')'
+            invalid_chars_pattern = r'[<>:"/\\|?*]'
+            if (len(folder_name) > 200):
+                folder_name = banngo + ' [' + data['studio'] + '] -' + data['title'][:100] + ' (' + data['release date'].split('-')[0] + ')'
+            folder_name = re.sub(invalid_chars_pattern, '-', folder_name)
+
             #Move the file into a folder with proper name
-            folder_name = banngo + ' [' + data['studio'] + '] - ' + data['title'] + ' (' + data['release date'].split('-')[0] + ')'
             try:
-                folder_path = os.path.join('.', folder_name)
+                folder_path = os.path.join(current_directory, folder_name)
                 if not os.path.exists(folder_path):
                     os.makedirs(folder_path)
                 shutil.move(file, folder_path)
@@ -61,7 +68,7 @@ def manageStructure(directory='.'):
 
             #create nfo file
             nfo_name = filename + ".nfo"
-            createNFO(nfo_name, data, folder_path + image)
+            createNFO(nfo_name, data, folder_path + '\\' + image)
             shutil.move(nfo_name, folder_path)
 
     #create logs
@@ -103,12 +110,15 @@ def createNFO(nfo_name, data, image):
 #Function to extract metadata from javguru
 def findData_javguru(banngo):
     #compile regex to match from url
+    if 'MIUM' in banngo:
+        banngo = '300' + banngo
     regex = re.compile(r'<a title="\[' + re.escape(banngo) + r'\] .*"')
     try:
         search = requests.get(javguru_search_url + banngo, headers = headers)
         result = regex.search(search.text)
     except:
         print("did not found search result for ", banngo)
+        print('ending script')
         sys.exit(1)
 
     #extract title and url from previous match
@@ -116,10 +126,11 @@ def findData_javguru(banngo):
     try:
         match = regex.search(result.group())
         title = match.group('title')
-        title = title.split(']')[1]
+        invalidBracket = r'[.*]'
+        title = re.sub(invalidBracket, '', title)
         target_url = match.group('href')
     except:
-        print("didnt find title information")
+        print("didnt find title information for ", banngo)
         sys.exit(1)
 
     #open target url to extract metadata
@@ -129,41 +140,41 @@ def findData_javguru(banngo):
         targetinfo = soup.find('div', class_ = 'infoleft')
         targetinfo = str(targetinfo)
     except:
-        print("did not find infoleft")
+        print("did not find infoleft for ", banngo)
         sys.exit(1)
 
     #extract metadata
     try:
         release_date = re.search(r'Release Date: </strong>(\d{4}-\d{2}-\d{2})', targetinfo).group(1)
     except:
-        print("no release date information")
-        release_date = date.today()
+        print("no release date information for ", banngo)
+        release_date = str(date.today())
     try:
         director = re.search(r'Director: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except:
-        print("no director information")
-        director = ''
+        print("no director information for ", banngo)
+        director = 'unknown'
     try:
         studio = re.search(r'Studio: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except:
-        print("no studio information")
-        studio = ''
+        print("no studio information for ", banngo)
+        studio = 'unknown'
     try:
         label = re.search(r'Label: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except:
-        print("no label information")
-        label = ''
+        print("no label information for ", banngo)
+        label = 'unknown'
     try:
         tags = re.findall(r'Tags: </strong>(.*)</li>', targetinfo)[0]
         regex = re.compile('([A-Za-z]*)<\/a>')
         tags = regex.findall(tags)
     except:
-        print("no tag information")
+        print("no tag information for ", banngo)
         tags = ''
     try:
         actress = re.search(r'Actress: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except:
-        print("no actress information, set actress to unknown")
+        print("no actress information for " + banngo + " set actress to unknown")
         actress = 'unknown'
 
 
