@@ -10,7 +10,7 @@ requests
 BeautifulSoup4  
 
 ## Usage:
-for windows only
+for windows only  
 You have to manually visit the jav guru site first to get the cookie value and user agent.  
 simply fill your cookie value and user agent in "headers" variable.  
 Put the .py file into the folder where your jav resides, then run the py there.  
