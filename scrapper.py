@@ -6,6 +6,9 @@ import re
 from bs4 import BeautifulSoup
 from datetime import date, datetime
 
+class CustomException(Exception):
+    def __init__(self, message):
+        self.message = message
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,9 +43,14 @@ def manageStructure(directory='.'):
                 banngo = match[0].upper()
                 processed_files.append(banngo)
             else:
-                print("error in looping banngo")
-                sys.exit(1)
-            data = findData_javguru(banngo)
+                print("error in looping banngo for", file)
+                continue
+
+            try:
+                data = findData_javguru(banngo)
+            except CustomException as e:
+                print(e.message)
+                continue
 
             #clean the name to avoid invlaid title name for folder
             folder_name = banngo + ' [' + data['studio'] + '] -' + data['title'] + ' (' + data['release date'].split('-')[0] + ')'
@@ -119,9 +127,8 @@ def findData_javguru(banngo):
             search = requests.get(javguru_search_url + banngo, headers = headers)
             result = secondTry.search(search.text).group()
         except:
-            print("did not found search result for ", banngo)
-            print('ending script')
-            sys.exit(1)
+            raise CustomException("did not found search result for " + banngo)
+            return
 
     #extract title and url from previous match
     regex = re.compile(r'<a title="(?P<title>.*?)" href="(?P<href>.*?)"')
