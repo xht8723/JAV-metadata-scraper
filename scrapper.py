@@ -6,16 +6,13 @@ import re
 from bs4 import BeautifulSoup
 from datetime import date, datetime
 
-class CustomException(Exception):
-    def __init__(self, message):
-        self.message = message
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 javguru_search_url = "https://jav.guru/?s="
 headers = {
-    'User-Agent': 'your user agent',
-    'Cookie': '_ga=value; PHPSESSID=value; _ga_83WTHH81CR=value'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'Cookie': '_ga=GA1.1.1355043263.1685224096; PHPSESSID=h0bn1a946dmk5p1il5ff8cjcbd; _ga_83WTHH81CR=GS1.1.1712917919.142.0.1712917929.0.0.0'
 }
 file_format = [
     '.mp4',
@@ -43,14 +40,9 @@ def manageStructure(directory='.'):
                 banngo = match[0].upper()
                 processed_files.append(banngo)
             else:
-                print("error in looping banngo for", file)
-                continue
-
-            try:
-                data = findData_javguru(banngo)
-            except CustomException as e:
-                print(e.message)
-                continue
+                print("error in looping banngo")
+                sys.exit(1)
+            data = findData_javguru(banngo)
 
             #clean the name to avoid invlaid title name for folder
             folder_name = banngo + ' [' + data['studio'] + '] -' + data['title'] + ' (' + data['release date'].split('-')[0] + ')'
@@ -127,8 +119,9 @@ def findData_javguru(banngo):
             search = requests.get(javguru_search_url + banngo, headers = headers)
             result = secondTry.search(search.text).group()
         except:
-            raise CustomException("did not found search result for " + banngo)
-            return
+            print("did not found search result for ", banngo)
+            print('ending script')
+            sys.exit(1)
 
     #extract title and url from previous match
     regex = re.compile(r'<a title="(?P<title>.*?)" href="(?P<href>.*?)"')
