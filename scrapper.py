@@ -11,8 +11,8 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 
 javguru_search_url = "https://jav.guru/?s="
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-    'Cookie': '_ga=GA1.1.1355043263.1685224096; PHPSESSID=h0bn1a946dmk5p1il5ff8cjcbd; _ga_83WTHH81CR=GS1.1.1712917919.142.0.1712917929.0.0.0'
+    'User-Agent': 'your user agent',
+    'Cookie': '_ga=value; PHPSESSID=value; _ga_83WTHH81CR=value'
 }
 file_format = [
     '.mp4',
