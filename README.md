@@ -22,12 +22,12 @@ For windows
 Use pip to install the above dependencies.  
 Your JAV files must contain the series number, eg. ABF-666, dhsuehf@ABF-666shrjf.  
 You have to manually visit the Jav Guru site first to get the cookie value and user agent.  
-simply fill your cookie value and user agent in "headers" variable.  
+simply fill your cookie value and user agent in "headers" variable. _PHPSISID seems the important one here.  
 Put the .py file into the folder where your Jav resides, then run the py there.  
 
 仅测试过Windows
 先安装上面写的两个python库，AV的名字必须要有番号，比如ABF-666, dhsuehf@ABF-666shrjf等.  
-然后你需要事先登一下JAVGURU网站来获取你的浏览器user agency，和cookie值。  
+然后你需要事先登一下JAVGURU网站来获取你的浏览器user agency，和cookie值。_PHPSISID是必要的cookie值，其它的可以删除（当然最好有）。  
 在脚本的header变量里面输入相应的user agency和cookie值就可以了。  
 最后把脚本放进AV相同的文件夹，然后运行即可。  
   
