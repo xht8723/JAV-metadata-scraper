@@ -71,3 +71,14 @@ manual create .nfo--手动输入并创建.nfo文件
   
 ## RECOMMEND CONNECTING A VPN OR RISKING A BAN FROM JAV GURU
 ## 推荐使用VPN，不然有可能被jav guru防机器人ban
+
+
+### How to get cookie values/如何获取cookie值
+
+![Chrome F12](/src/capture4.png)  
+
+eg. In chrome, open javguru webpage, F12 to open inspect, click on Application tab
+find cookies on the lift, cookie value should be displayed on the right. Copy those values.
+
+以Chrome为例，先手动打开javguru网页，按F12打开审查元素，点开Application这个页面
+左边找到cookies，点击右边即是所需的cookie值，复制粘贴即可。
