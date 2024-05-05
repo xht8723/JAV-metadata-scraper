@@ -1,5 +1,8 @@
 # JAV media tools for jellyfin
 
+![ ](/res/capture.png)  
+![ ](/res/capture2.png)  
+
 A little python script to scrap the JAV metadatas and thumbnails for jellyfin(maybe emby too idk).  
 Metadata includes Actress, thumbnail, tags, studios and labels, stored in .nfo fileformat.  
 This script will also rename and organize your directories to suit jellyfin file structure.  
@@ -17,7 +20,7 @@ AV会被移动到相应名字的文件夹中，文件夹的命名格式为：XXX
 ## Dependencies:
 
 requests  
-BeautifulSoup4
+BeautifulSoup4  
 ttkbootstrap  
 
 
