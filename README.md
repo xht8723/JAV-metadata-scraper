@@ -1,7 +1,8 @@
 # JAV media tools for jellyfin
 
-![ ](/res/capture.png)  
-![ ](/res/capture2.png)  
+![GUI](/res/capture.png)  
+![What files look like after processing/文件处理之后的效果](/res/capture2.png)  
+![Inside Jellyfin](/res/capture3.png)  
 
 A little python script to scrap the JAV metadatas and thumbnails for jellyfin(maybe emby too idk).  
 Metadata includes Actress, thumbnail, tags, studios and labels, stored in .nfo fileformat.  
