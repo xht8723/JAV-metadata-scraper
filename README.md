@@ -75,7 +75,7 @@ manual create .nfo--手动输入并创建.nfo文件
 
 ### How to get cookie values/如何获取cookie值
 
-![Chrome F12](/src/capture4.png)  
+![Chrome F12](/res/capture4.png)  
 
 eg. In chrome, open javguru webpage, F12 to open inspect, click on Application tab
 find cookies on the lift, cookie value should be displayed on the right. Copy those values.
