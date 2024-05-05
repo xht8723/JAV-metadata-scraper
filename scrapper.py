@@ -5,31 +5,30 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from datetime import date, datetime
+import utilities as ut
 
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
+#script_dir = os.path.dirname(os.path.abspath(__file__))
 
-javguru_search_url = "https://jav.guru/?s="
-headers = {
-    'User-Agent': 'your user agent',
-    'Cookie': '_ga=value; PHPSESSID=value; _ga_83WTHH81CR=value'
-}
-file_format = [
+
+#manage the file structure for jellyfin. create nfo and download image
+def manageStructure(headers, directory, progressbar):
+    file_format = [
     '.mp4',
     '.MP4',
     '.mkv',
     '.rmvb',
     '.AVI',
     '.avi'
-]
-
-#manage the file structure for jellyfin. create nfo and download image
-def manageStructure(directory='.'):
+    ]
     # Get the list of files in the specified directory
     file_list = os.listdir(directory)
     pattern = re.compile('([a-zA-Z]+\d*?-\d+[a-zA-Z]?)')
+    fileNum = len(file_list)
+    step = 100/fileNum
+    ut.setGauge(progressbar, 0)
+    progressbar.configure(subtext = 'Processing..')
     processed_files = []
-    current_directory = os.getcwd()
     #looping
     for file in file_list:
         #optimize file name and prepare for more process
@@ -40,9 +39,8 @@ def manageStructure(directory='.'):
                 banngo = match[0].upper()
                 processed_files.append(banngo)
             else:
-                print("error in looping banngo")
                 sys.exit(1)
-            data = findData_javguru(banngo)
+            data = findData_javguru(banngo, headers)
 
             #clean the name to avoid invlaid title name for folder
             folder_name = banngo + ' [' + data['studio'] + '] -' + data['title'] + ' (' + data['release date'].split('-')[0] + ')'
@@ -53,13 +51,14 @@ def manageStructure(directory='.'):
 
             #Move the file into a folder with proper name
             try:
-                folder_path = os.path.join(current_directory, folder_name)
+                folder_path = os.path.join(directory, folder_name)
                 if not os.path.exists(folder_path):
                     os.makedirs(folder_path)
-                shutil.move(file, folder_path)
+                full_path = directory + '/' + file
+                shutil.move(full_path, folder_path)
             except AttributeError as e:
-                print(file)
-                print(str(e))
+                #do nothing
+                pass
 
             #download image
             image = downloadImage(data)
@@ -69,6 +68,9 @@ def manageStructure(directory='.'):
             nfo_name = filename + ".nfo"
             createNFO(nfo_name, data, folder_path + '\\' + image)
             shutil.move(nfo_name, folder_path)
+        ut.updateGauge(progressbar, step)
+    ut.setGauge(progressbar, 100)
+    progressbar.configure(subtext = 'Complete!')    
     
 
 #using data to create the nfo file.
@@ -103,7 +105,8 @@ def createNFO(nfo_name, data, image):
 
 
 #Function to extract metadata from javguru
-def findData_javguru(banngo):
+def findData_javguru(banngo, headers):
+    javguru_search_url = "https://jav.guru/?s="
     #compile regex to match from url
     if 'MIUM' in banngo:
         banngo = '300' + banngo
@@ -113,14 +116,11 @@ def findData_javguru(banngo):
         result = regex.search(search.text)
         result = result.group() + ''
     except:
-        print(banngo + "first search failed. trying again...")
         try:
             secondTry = re.compile(r'<a title="\[.*?\] .*"')
             search = requests.get(javguru_search_url + banngo, headers = headers)
             result = secondTry.search(search.text).group()
         except:
-            print("did not found search result for ", banngo)
-            print('ending script')
             sys.exit(1)
 
     #extract title and url from previous match
@@ -132,10 +132,8 @@ def findData_javguru(banngo):
         title = re.sub(invalidBracket, '', title)
         target_url = match.group('href')
     except:
-        print(banngo + " title search failed. loosing condition try again....")
         try:
             secondTry = re.compile(r'<a title="(.*?)"')
-            print(result)
             match = secondTry.findall(result)
             title = match[0]
             invalidBracket = '\[.*\]'
@@ -143,8 +141,6 @@ def findData_javguru(banngo):
             secondTry = re.compile(r'href="(.*?)"')
             target_url = match[0]
         except Exception as e:
-            print(str(e))
-            print("didnt find title information for ", banngo)
             sys.exit(1)
 
     #open target url to extract metadata
@@ -154,36 +150,30 @@ def findData_javguru(banngo):
         targetinfo = soup.find('div', class_ = 'infoleft')
         targetinfo = str(targetinfo)
     except:
-        print("did not find infoleft for ", banngo)
         sys.exit(1)
 
     #extract metadata
     try:
         release_date = re.search(r'Release Date: </strong>(\d{4}-\d{2}-\d{2})', targetinfo).group(1)
     except:
-        print("no release date information for ", banngo)
         release_date = str(date.today())
     try:
         director = re.search(r'Director: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except:
-        print("no director information for ", banngo)
         director = 'unknown'
     try:
         studio = re.search(r'Studio: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except:
-        print("no studio information for ", banngo)
         studio = 'unknown'
     try:
         label = re.search(r'Label: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except:
-        print("no label information for ", banngo)
         label = 'unknown'
     try:
         tags = re.findall(r'Tags: </strong>(.*)</li>', targetinfo)[0]
         regex = re.compile('([A-Za-z]*)<\/a>')
         tags = regex.findall(tags)
     except:
-        print("no tag information for ", banngo)
         tags = ''
     try:
         soupActress = BeautifulSoup(targetinfo, 'html.parser')
@@ -193,8 +183,6 @@ def findData_javguru(banngo):
         actress = actressRegex.findall(str(actress_list[3]))
         #actress = re.search(r'Actress: </strong> <a href=".*" rel="tag">(.*)</a>', targetinfo).group(1)
     except Exception as e:
-        print("no actress information for " + banngo + " set actress to unknown")
-        print(str(e))
         actress = 'unknown'
 
     #find image adress
@@ -204,7 +192,6 @@ def findData_javguru(banngo):
         soupImage = BeautifulSoup(imageAdress, 'html.parser')
         imageAdress = soupImage.find('img')['src']
     except:
-        print("did not find image adress")
         imageAdress = ''
 
     data = {
@@ -228,8 +215,5 @@ def downloadImage(data):
         with open('folder.jpg', 'wb') as f:
             f.write(response.content)
     except:
-        print("failed to save image")
+        pass
     return 'folder.jpg'
-
-
-manageStructure()

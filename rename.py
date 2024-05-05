@@ -1,6 +1,7 @@
 import os
+import utilities as ut
 
-def rename_files(directory, replaceString, replaceto):
+def rename_files(directory, replaceString, replaceto, widget):
     for filename in os.listdir(directory):
         if replaceString in filename:
             # Extract the desired part of the filename
@@ -12,11 +13,5 @@ def rename_files(directory, replaceString, replaceto):
             
             # Rename the file
             os.rename(old_path, new_path)
-            print(f"Renamed: {filename} -> {new_filename}")
-
-# Specify the directory path where the files are located
-directory_path = input("input directory_path: ")
-ReplaceString = input("things to replace: ")
-replaceto = input("Replace them to: ")
-# Call the function to rename the files
-rename_files(directory_path, ReplaceString, replaceto)
+            ut.display(widget, f"Renamed: {filename} -> {new_filename}")
+    return
