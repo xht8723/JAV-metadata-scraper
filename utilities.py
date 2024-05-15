@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from tkinter import *
 from ttkbootstrap.constants import *
 from tkinter import filedialog
@@ -55,7 +54,6 @@ def saveJson(key, toSave):
     data[key] = toSave
     with open('data.json', 'w') as file:
         json.dump(data, file, indent=4)
-=======
 from tkinter import *
 from ttkbootstrap.constants import *
 from tkinter import filedialog
@@ -112,5 +110,4 @@ def saveJson(key, toSave):
     data[key] = toSave
     with open('data.json', 'w') as file:
         json.dump(data, file, indent=4)
->>>>>>> bug
     return

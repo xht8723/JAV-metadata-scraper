@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os
 from datetime import date, datetime
 import utilities as ut
@@ -62,7 +61,6 @@ def manualNFO(dir):
     }
 
     createNFO(nfo_name,data,image)
-=======
 import os
 from datetime import date, datetime
 import utilities as ut
@@ -126,4 +124,3 @@ def manualNFO(dir):
     }
 
     createNFO(nfo_name,data,image)
->>>>>>> bug

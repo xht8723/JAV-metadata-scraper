@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os
 import xml.etree.ElementTree as ET
 import utilities as ut
@@ -31,7 +30,6 @@ def removeXMLtag(directory, widget):
                 ut.display(widget, f'Skipping {filename} due to XML parsing error.')
 
     ut.display(widget, 'Done.')
-=======
 import os
 import xml.etree.ElementTree as ET
 import utilities as ut
@@ -64,4 +62,3 @@ def removeXMLtag(directory, widget):
                 ut.display(widget, f'Skipping {filename} due to XML parsing error.')
 
     ut.display(widget, 'Done.')
->>>>>>> bug
