@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import sys
 import os
 import shutil
@@ -217,7 +216,6 @@ def downloadImage(data):
             f.write(response.content)
     except:
         pass
-=======
 import sys
 import os
 import shutil
@@ -454,5 +452,4 @@ def downloadImage(data):
     except Exception as e:
         print('failed to download img for', data['banngo'])
         pass
->>>>>>> bug
     return 'folder.jpg'
