@@ -1,4 +1,5 @@
 # JAV media tools for jellyfin
+## Deprecated. New scraper using Selenium: https://github.com/xht8723/real-JAV-scraper-NSFW-
 
 ![GUI](/res/capture.png)  
 ![What files look like after processing/文件处理之后的效果](/res/capture2.png)  
